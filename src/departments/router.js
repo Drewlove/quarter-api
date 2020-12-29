@@ -8,9 +8,8 @@ const jsonParser = express.json();
 
 //REWRITE, include each row from table
 const serializeRow = (row) => ({
-  student_id: row.student_id,
-  first_name: xss(row.first_name),
-  last_name: xss(row.last_name),
+  department_id: row.department_id,
+  department_name: xss(row.department_name),
 });
 
 endpointRouter
@@ -26,8 +25,8 @@ endpointRouter
   })
   .post(jsonParser, (req, res, next) => {
     //REWRITE, include each column name
-    const { first_name, last_name } = req.body;
-    const newRow = { first_name, last_name };
+    const { department_name } = req.body;
+    const newRow = { department_name };
 
     for (const [key, value] of Object.entries(newRow))
       if (value == null)
@@ -41,7 +40,7 @@ endpointRouter
         res
           .status(201)
           //REWRITE, row.student_id to column name of row's id
-          .location(path.posix.join(req.originalUrl, `/${row.student_id}`))
+          .location(path.posix.join(req.originalUrl, `/${row.department_id}`))
           .json(serializeRow(row));
       })
       .catch(next);
@@ -76,15 +75,15 @@ endpointRouter
   })
   .patch(jsonParser, (req, res, next) => {
     //REWRITE, use table's column names
-    const { first_name, last_name } = req.body;
-    const rowToUpdate = { first_name, last_name };
+    const { department_name } = req.body;
+    const rowToUpdate = { department_name };
 
     //REWRITE, error.message to include column names that would be included in an update
     const numberOfValues = Object.values(rowToUpdate).filter(Boolean).length;
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
-          message: `Request body content be either 'fullname', 'username', 'password' or 'nickname'`,
+          message: `Request body content must contain 'name' `,
         },
       });
 
