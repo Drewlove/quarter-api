@@ -12,6 +12,12 @@ const serializeRow = (row) => ({
   department_name: xss(row.department_name),
 });
 
+const table = {
+  name: "department",
+  columns: ["department_name"],
+  rowId: "department_id",
+};
+
 endpointRouter
   .route("/")
   .get((req, res, next) => {
@@ -88,7 +94,7 @@ endpointRouter
       });
 
     endpointService
-      .updateRow(req.app.get("db"), req.params.row_id, userToUpdate)
+      .updateRow(req.app.get("db"), req.params.row_id, rowToUpdate)
       .then((numRowsAffected) => {
         res.status(204).end();
       })

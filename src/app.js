@@ -31,10 +31,10 @@ app.use(helmet());
 app.use(validateBearerToken);
 app.use("/api/departments", departmentsRouter);
 
-app.use("/api/users", usersRouter);
-app.use("/api/articles", articlesRouter);
-app.use("/api/comments", commentsRouter);
-app.use("/api/boilerplate-endpoints", boilerplateRouter);
+// app.use("/api/users", usersRouter);
+// app.use("/api/articles", articlesRouter);
+// app.use("/api/comments", commentsRouter);
+// app.use("/api/boilerplate-endpoints", boilerplateRouter);
 
 //Open heroku url in browser, see if {ok: true} appears
 app.get("/TEST", (req, res) => {
