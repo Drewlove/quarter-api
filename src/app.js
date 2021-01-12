@@ -7,11 +7,12 @@ const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const validateBearerToken = require("./validate-bearer-token");
 
-const usersRouter = require("./users/users-router");
-const articlesRouter = require("./articles/articles-router");
-const commentsRouter = require("./comments/comments-router");
-const boilerplateRouter = require("./boierplate-endpoints/router");
+// const usersRouter = require("./users/users-router");
+// const articlesRouter = require("./articles/articles-router");
+// const commentsRouter = require("./comments/comments-router");
+// const boilerplateRouter = require("./boierplate-endpoints/router");
 const departmentsRouter = require("./departments/router");
+const rolesRouter = require("./roles/router");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(helmet());
 
 app.use(validateBearerToken);
 app.use("/api/departments", departmentsRouter);
+app.use("/api/roles", rolesRouter);
 
 // app.use("/api/users", usersRouter);
 // app.use("/api/articles", articlesRouter);

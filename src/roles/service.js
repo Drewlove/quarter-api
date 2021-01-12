@@ -1,16 +1,33 @@
 //REWRITE, make note of 'orderRow' if you want rows returned alphabetically
 const table = {
-  name: "challenge",
-  orderRow: "challenge_name",
+  name: "role",
+  orderRow: "role_name",
 };
 const service = {
   getAllRows(knex) {
     return knex.select("*").from(table.name).orderBy(table.orderRow, "ASC");
   },
+  getAllRowsWithDepartments(knex) {
+    return knex("role")
+      .join("department", "role.department_id", "=", "department.department_id")
+      .select(
+        "role.role_id",
+        "role.role_name",
+        "department.department_id",
+        "department.department_name"
+      )
+      .orderBy("role.role_name", "ASC");
+  },
+  //getById(knex, row_id)
   getById(knex, row_id) {
-    return knex
-      .from(table.name)
-      .select("*")
+    return knex("role")
+      .join("department", "role.department_id", "=", "department.department_id")
+      .select(
+        "role.role_id",
+        "role.role_name",
+        "department.department_id",
+        "department.department_name"
+      )
       .where(`${table.name}_id`, row_id)
       .first();
   },
