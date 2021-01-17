@@ -18,7 +18,6 @@ const service = {
       )
       .orderBy("role.role_name", "ASC");
   },
-  //getById(knex, row_id)
   getById(knex, row_id) {
     return knex("role")
       .join("department", "role.department_id", "=", "department.department_id")

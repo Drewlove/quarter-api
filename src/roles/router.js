@@ -39,8 +39,8 @@ endpointRouter
       .catch(next);
   })
   .post(jsonParser, (req, res, next) => {
-    const { challenge_name, challenge_description, units } = req.body;
-    const newRow = { challenge_name, challenge_description, units };
+    const { role_name, department_id } = req.body;
+    const newRow = { role_name, department_id };
 
     for (const [key, value] of Object.entries(newRow))
       if (value == null)
