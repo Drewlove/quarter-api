@@ -8,35 +8,27 @@ const endpointRouter = express.Router();
 const jsonParser = express.json();
 
 //REWRITE, include each row from table
+//serializeRowAmountTypePercent
+//serializeRowAmountTypeDollars
+
 const serializeRow = (row) => ({
-  shift_id: row.shift_id,
-  shift_day: row.shift_day,
-  shift_department: row.shift_department,
-  shift_role: row.shift_role,
-  shift_start: row.shift_start,
-  shift_end: row.shift_end,
-  people: row.people,
-  wage: row.wage,
-  shift_group_id: row.shift_group_id,
-  department_name: row.department_name,
-  role_name: row.role_name,
-  payroll_tax: row.payroll_tax,
+  line_item_category: row.line_item_category,
+  line_item_id: row.line_item_id,
+  line_item_name: xss(row.line_item_name),
+  amount: row.amount,
+  line_item_amount_type: row.line_item_amount_type,
+  percent_of: row.percent_of,
 });
 
 const table = {
-  name: "shift",
+  name: "line_item",
   columns: [
-    "shift_id",
-    "shift_day",
-    "shift_department",
-    "shift_role",
-    "shift_start",
-    "shift_end",
-    "people",
-    "wage",
-    "payroll_tax",
+    "line_item_category",
+    "line_item_name",
+    "amount",
+    "line_item_amount_type",
   ],
-  rowId: "shift_id",
+  rowId: "line_item_id",
 };
 
 endpointRouter
@@ -51,25 +43,10 @@ endpointRouter
       .catch(next);
   })
 
+  //REWRITE
   .post(jsonParser, (req, res, next) => {
-    const {
-      shift_day,
-      shift_department,
-      shift_role,
-      shift_start,
-      shift_end,
-      people,
-      wage,
-    } = req.body;
-    const newRow = {
-      shift_day,
-      shift_department,
-      shift_role,
-      shift_start,
-      shift_end,
-      people,
-      wage,
-    };
+    const { challenge_name, challenge_description, units } = req.body;
+    const newRow = { challenge_name, challenge_description, units };
 
     for (const [key, value] of Object.entries(newRow))
       if (value == null)
@@ -118,28 +95,18 @@ endpointRouter
   .patch(jsonParser, (req, res, next) => {
     //REWRITE, use table's column names
     const {
-      shift_id,
-      shift_day,
-      shift_department,
-      shift_role,
-      shift_start,
-      shift_end,
-      people,
-      wage,
-      shift_group_id,
-      payroll_tax,
+      line_item_category,
+      line_item_name,
+      amount,
+      line_item_amount_type,
+      percent_of,
     } = req.body;
     const rowToUpdate = {
-      shift_id,
-      shift_day,
-      shift_department,
-      shift_role,
-      shift_start,
-      shift_end,
-      people,
-      wage,
-      shift_group_id,
-      payroll_tax,
+      line_item_category,
+      line_item_name,
+      amount,
+      line_item_amount_type,
+      percent_of,
     };
 
     const numberOfValues = Object.values(rowToUpdate).filter(Boolean).length;

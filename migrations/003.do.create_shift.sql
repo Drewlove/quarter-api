@@ -16,5 +16,7 @@ NOT NULL,
     shift_end TIME NOT NULL, 
     people INTEGER NOT NULL, 
     wage NUMERIC
-(5,2) NOT NULL
+(6,2) NOT NULL, 
+payroll_tax NUMERIC
+(4,2) NOT NULL
 );

@@ -10,6 +10,7 @@ const validateBearerToken = require("./validate-bearer-token");
 const departmentsRouter = require("./departments/router");
 const rolesRouter = require("./roles/router");
 const shiftsRouter = require("./shifts/router");
+const lineItemsRouter = require("./line_items/router");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(validateBearerToken);
 app.use("/api/departments", departmentsRouter);
 app.use("/api/roles", rolesRouter);
 app.use("/api/shifts", shiftsRouter);
+app.use("/api/line_items", lineItemsRouter);
 
 //Open heroku url in browser, see if {ok: true} appears
 app.get("/TEST", (req, res) => {
