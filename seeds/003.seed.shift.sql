@@ -12,19 +12,3 @@ VALUES
     ('{3, 4, 5, 6}', 2, 2, '07:00:00', '13:15:00', 1, 14.50, 7.65),
     ('{3, 4, 5, 6}', 2, 5, '06:30:00', '14:00:00', 2, 13.50, 7.65),
     ('{3, 4, 5, 6}', 2, 8, '07:00:00', '14:00:00', 1, 13.50, 7.65);
-
-
--- departments
---     ('kitchen'), id --> 1
---     ('service'), id --> 2
---     ('bagel production') id --> 3
-
--- roles
-    -- ('production', 3),  id --> 1
-    -- ('register', 2), id --> 2
-    -- ('sous chef', 1), id --> 3
-    -- ('head chef', 1), id --> 4
-    -- ('line prep', 2), id --> 5
-    -- ('doughs', 3), id --> 6
-    -- ('lead production', 3), id --> 7
-    -- ('expediter', 2); id --> 8

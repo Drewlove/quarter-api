@@ -27,6 +27,7 @@ const table = {
     "line_item_name",
     "amount",
     "line_item_amount_type",
+    "percent_of",
   ],
   rowId: "line_item_id",
 };
@@ -45,15 +46,29 @@ endpointRouter
 
   //REWRITE
   .post(jsonParser, (req, res, next) => {
-    const { challenge_name, challenge_description, units } = req.body;
-    const newRow = { challenge_name, challenge_description, units };
+    const {
+      line_item_category,
+      line_item_name,
+      amount,
+      line_item_amount_type,
+      percent_of,
+    } = req.body;
+    const newRow = {
+      line_item_category,
+      line_item_name,
+      amount,
+      line_item_amount_type,
+      percent_of,
+    };
 
-    for (const [key, value] of Object.entries(newRow))
-      if (value == null)
+    for (const [key, value] of Object.entries(newRow)) {
+      if (key !== "percent_of" && value == null) {
         return res.status(400).json({
           error: { message: `Missing '${key}' in request body` },
         });
-
+      }
+    }
+    logger.error(newRow);
     endpointService
       .insertRow(req.app.get("db"), newRow)
       .then((row) => {
@@ -116,7 +131,6 @@ endpointRouter
           message: `Request body content must contain at least one of the following: ${table.columns}`,
         },
       });
-
     endpointService
       .updateRow(req.app.get("db"), req.params.row_id, rowToUpdate)
       .then((numRowsAffected) => {

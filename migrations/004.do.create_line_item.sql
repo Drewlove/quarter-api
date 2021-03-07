@@ -13,7 +13,7 @@ CREATE TABLE line_item(
     line_item_category category, 
     line_item_name TEXT NOT NULL, 
     amount NUMERIC
-(11, 2), 
+(11, 2) NOT NULL, 
     line_item_amount_type amount_type, 
     percent_of INTEGER REFERENCES line_item
 (line_item_id) ON
