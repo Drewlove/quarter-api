@@ -20,6 +20,3 @@ const checkJwt = jwt({
 module.exports = {
   checkJwt,
 };
-
-// AUTH0_DOMAIN=dev-twvvyq34.auth0.com
-// AUTH0_AUDIENCE=https://quarter.api
