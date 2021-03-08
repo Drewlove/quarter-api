@@ -8,11 +8,10 @@ const checkJwt = jwt({
     rateLimit: true,
     jwksRequestsPerMinute: 5,
     jwksUri: `https://${DOMAIN}/.well-known/jwks.json`,
-    // jwksUri: `https://dev-twvvyq34.auth0.com/.well-known/jwks.json`,
   }),
   audience: AUDIENCE,
-  //   issuer: `https://${DOMAIN}/`,
-  issuer: `https://dev-twvvyq34.auth0.com/`,
+  issuer: `https://${DOMAIN}/`,
+  //   issuer: `https://dev-twvvyq34.auth0.com/`,
   algorithms: ["RS256"],
 });
 
