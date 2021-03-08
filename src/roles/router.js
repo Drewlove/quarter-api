@@ -13,8 +13,6 @@ const serializeRow = (row) => ({
   role_id: row.role_id,
   role_name: xss(row.role_name),
   department_id: row.department_id,
-  domain: DOMAIN,
-  audience: AUDIENCE,
 });
 
 const serializeRowWithDepartment = (row) => ({
@@ -22,6 +20,8 @@ const serializeRowWithDepartment = (row) => ({
   role_name: xss(row.role_name),
   department_id: row.department_id,
   department_name: row.department_name,
+  domain: DOMAIN,
+  audience: AUDIENCE,
 });
 
 const table = {
