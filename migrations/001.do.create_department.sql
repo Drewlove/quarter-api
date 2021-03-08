@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS student
+DROP TABLE IF EXISTS department
 CASCADE;
 
 CREATE TABLE department(
