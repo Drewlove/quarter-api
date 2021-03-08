@@ -3,9 +3,10 @@ const express = require("express");
 const xss = require("xss");
 const endpointService = require("./service");
 const logger = require("../logger");
-
 const endpointRouter = express.Router();
 const jsonParser = express.json();
+
+const { DOMAIN, AUDIENCE } = require("../config");
 
 //REWRITE, include each row from table
 const serializeRow = (row) => ({
@@ -34,7 +35,11 @@ endpointRouter
     endpointService
       .getAllRowsWithDepartments(knexInstance)
       .then((rows) => {
-        res.json(rows.map(serializeRowWithDepartment));
+        // res.json(rows.map(serializeRowWithDepartment));
+        res.json({
+          domain: DOMAIN,
+          audience: AUDIENCE,
+        });
       })
       .catch(next);
   })
