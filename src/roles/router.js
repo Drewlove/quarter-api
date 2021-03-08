@@ -2,11 +2,9 @@ const path = require("path");
 const express = require("express");
 const xss = require("xss");
 const endpointService = require("./service");
-const logger = require("../logger");
 const endpointRouter = express.Router();
 const jsonParser = express.json();
-
-const { DOMAIN, AUDIENCE } = require("../config");
+const { checkJwt } = require("../authz/check-jwt");
 
 //REWRITE, include each row from table
 const serializeRow = (row) => ({
@@ -20,8 +18,6 @@ const serializeRowWithDepartment = (row) => ({
   role_name: xss(row.role_name),
   department_id: row.department_id,
   department_name: row.department_name,
-  domain: DOMAIN,
-  audience: AUDIENCE,
 });
 
 const table = {
@@ -32,7 +28,7 @@ const table = {
 
 endpointRouter
   .route("/")
-  .get((req, res, next) => {
+  .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
       .getAllRowsWithDepartments(knexInstance)
@@ -46,7 +42,7 @@ endpointRouter
       })
       .catch(next);
   })
-  .post(jsonParser, (req, res, next) => {
+  .post(jsonParser, checkJwt, (req, res, next) => {
     const { role_name, department_id } = req.body;
     const newRow = { role_name, department_id };
 
@@ -69,7 +65,7 @@ endpointRouter
 
 endpointRouter
   .route("/:row_id")
-  .all((req, res, next) => {
+  .all(checkJwt, (req, res, next) => {
     endpointService
       .getById(req.app.get("db"), req.params.row_id)
       .then((row) => {

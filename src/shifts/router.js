@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const xss = require("xss");
 const endpointService = require("./service");
-const logger = require("../logger");
+const { checkJwt } = require("../authz/check-jwt");
 
 const endpointRouter = express.Router();
 const jsonParser = express.json();
@@ -15,12 +15,12 @@ const serializeRow = (row) => ({
   shift_role: row.shift_role,
   shift_start: row.shift_start,
   shift_end: row.shift_end,
-  people: row.people,
-  wage: row.wage,
+  people: xss(row.people),
+  wage: xss(row.wage),
   shift_group_id: row.shift_group_id,
   department_name: row.department_name,
   role_name: row.role_name,
-  payroll_tax: row.payroll_tax,
+  payroll_tax: xss(row.payroll_tax),
 });
 
 const table = {
@@ -41,7 +41,7 @@ const table = {
 
 endpointRouter
   .route("/")
-  .get((req, res, next) => {
+  .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
       .getAllRows(knexInstance)
@@ -51,7 +51,7 @@ endpointRouter
       .catch(next);
   })
 
-  .post(jsonParser, (req, res, next) => {
+  .post(jsonParser, checkJwt, (req, res, next) => {
     const {
       shift_day,
       shift_department,
@@ -90,7 +90,7 @@ endpointRouter
 
 endpointRouter
   .route("/:row_id")
-  .all((req, res, next) => {
+  .all(checkJwt, (req, res, next) => {
     endpointService
       .getById(req.app.get("db"), req.params.row_id)
       .then((row) => {

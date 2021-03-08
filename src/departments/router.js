@@ -2,9 +2,9 @@ const path = require("path");
 const express = require("express");
 const xss = require("xss");
 const endpointService = require("./service");
-const { checkJwt } = require("../authz/check-jwt");
 const endpointRouter = express.Router();
 const jsonParser = express.json();
+const { checkJwt } = require("../authz/check-jwt");
 
 const serializeRow = (row) => ({
   department_id: row.department_id,
