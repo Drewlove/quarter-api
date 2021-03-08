@@ -13,6 +13,8 @@ const serializeRow = (row) => ({
   role_id: row.role_id,
   role_name: xss(row.role_name),
   department_id: row.department_id,
+  domain: DOMAIN,
+  audience: AUDIENCE,
 });
 
 const serializeRowWithDepartment = (row) => ({
@@ -35,12 +37,12 @@ endpointRouter
     endpointService
       .getAllRowsWithDepartments(knexInstance)
       .then((rows) => {
-        // res.json(rows.map(serializeRowWithDepartment));
-        res.json({
-          name: "guy",
-          // domain: DOMAIN,
-          // audience: AUDIENCE,
-        });
+        res.json(rows.map(serializeRowWithDepartment));
+        // res.json({
+        //   name: "guy",
+        //   // domain: DOMAIN,
+        //   // audience: AUDIENCE,
+        // });
       })
       .catch(next);
   })
