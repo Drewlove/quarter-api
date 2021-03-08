@@ -20,7 +20,7 @@ const table = {
 
 endpointRouter
   .route("/")
-  .get(checkJwt, (req, res, next) => {
+  .get((req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
       .getAllRows(knexInstance)
