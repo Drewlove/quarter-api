@@ -7,13 +7,19 @@ const checkJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${DOMAIN}/.well-known/jwks.json`,
+    // jwksUri: `https://${DOMAIN}/.well-known/jwks.json`,
+    jwksUri: `https://dev-twvvyq34.auth0.com/.well-known/jwks.json`,
   }),
-  audience: AUDIENCE,
-  issuer: `https://${DOMAIN}/`,
+  //   audience: AUDIENCE,
+  audience: "https://quarter.api",
+  //   issuer: `https://${DOMAIN}/`,
+  issuer: `https://dev-twvvyq34.auth0.com/`,
   algorithms: ["RS256"],
 });
 
 module.exports = {
   checkJwt,
 };
+
+// AUTH0_DOMAIN=dev-twvvyq34.auth0.com
+// AUTH0_AUDIENCE=https://quarter.api
