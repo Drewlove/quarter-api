@@ -1,7 +1,0 @@
-{"message":{"line_item_category":"sales","line_item_name":"Merch","amount":"23,000.00","line_item_amount_type":"dollars","percent_of":null},"level":"error"}
-{"message":{"line_item_category":"overhead","line_item_name":"Rent","amount":18000,"line_item_amount_type":"dollars","percent_of":null},"level":"error"}
-{"message":{"line_item_category":"sales","line_item_name":"Merch","amount":12000,"line_item_amount_type":"dollars","percent_of":null},"level":"error"}
-{"message":{"line_item_category":"cogs","line_item_name":"Merch","amount":12,"line_item_amount_type":"percent","percent_of":"11"},"level":"error"}
-{"message":{"line_item_category":"cogs","line_item_name":"Beverage","amount":"22.46","line_item_amount_type":"percent","percent_of":"2"},"level":"error"}
-{"message":{"line_item_category":"cogs","line_item_name":"Merch","amount":"25.00","line_item_amount_type":"percent","percent_of":"11"},"level":"error"}
-{"message":{"line_item_category":"sales","line_item_name":"Beverage","amount":"15000.00","line_item_amount_type":"dollars","percent_of":null},"level":"error"}

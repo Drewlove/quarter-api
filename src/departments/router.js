@@ -2,25 +2,25 @@ const path = require("path");
 const express = require("express");
 const xss = require("xss");
 const endpointService = require("./service");
-
+const { checkJwt } = require("../authz/check-jwt");
 const endpointRouter = express.Router();
 const jsonParser = express.json();
 
-//REWRITE, include each row from table
 const serializeRow = (row) => ({
   department_id: row.department_id,
   department_name: xss(row.department_name),
+  app_user_id: row.app_user_id,
 });
 
 const table = {
   name: "department",
-  columns: ["department_name"],
+  columns: ["department_name", "app_user_id"],
   rowId: "department_id",
 };
 
 endpointRouter
   .route("/")
-  .get((req, res, next) => {
+  .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
       .getAllRows(knexInstance)
@@ -29,10 +29,9 @@ endpointRouter
       })
       .catch(next);
   })
-  .post(jsonParser, (req, res, next) => {
-    //REWRITE, include each column name
-    const { department_name } = req.body;
-    const newRow = { department_name };
+  .post(jsonParser, checkJwt, (req, res, next) => {
+    const { department_name, app_user_id } = req.body;
+    const newRow = { department_name, app_user_id };
 
     for (const [key, value] of Object.entries(newRow))
       if (value == null)
@@ -54,7 +53,7 @@ endpointRouter
 
 endpointRouter
   .route("/:row_id")
-  .all((req, res, next) => {
+  .all(checkJwt, (req, res, next) => {
     endpointService
       .getById(req.app.get("db"), req.params.row_id)
       .then((row) => {
