@@ -37,8 +37,9 @@ endpointRouter
       .then((rows) => {
         // res.json(rows.map(serializeRowWithDepartment));
         res.json({
-          domain: DOMAIN,
-          audience: AUDIENCE,
+          name: "guy",
+          // domain: DOMAIN,
+          // audience: AUDIENCE,
         });
       })
       .catch(next);
