@@ -2,16 +2,19 @@ TRUNCATE TABLE role
 RESTART IDENTITY CASCADE;
 
 INSERT INTO role
-    (role_name, department_id)
+    (app_user_id, role_name, department_id)
 VALUES
-    ('production', 3),
-    ('register', 2),
-    ('sous chef', 1),
-    ('head chef', 1),
-    ('line prep', 2),
-    ('doughs', 3),
-    ('lead production', 3),
-    ('expediter', 2);
+    ('603aa00aae08220070737444', 'production', 3),
+    ('603aa00aae08220070737444', 'register', 2),
+    ('603aa00aae08220070737444', 'sous chef', 1),
+    ('603aa00aae08220070737444', 'head chef', 1),
+    ('603aa00aae08220070737444', 'line prep', 2),
+    ('603aa00aae08220070737444', 'doughs', 3),
+    ('603aa00aae08220070737444', 'lead production', 3),
+    ('603aa00aae08220070737444', 'expediter', 2),
+
+    ('603d5037c23beb006ada3d0d', 'server', 4),
+    ('603d5037c23beb006ada3d0d', 'chef', 5);
 
 
 

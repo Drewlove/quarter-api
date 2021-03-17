@@ -8,12 +8,14 @@ const { checkJwt } = require("../authz/check-jwt");
 
 //REWRITE, include each row from table
 const serializeRow = (row) => ({
+  app_user_id: row.app_user_id,
   role_id: row.role_id,
   role_name: xss(row.role_name),
   department_id: row.department_id,
 });
 
 const serializeRowWithDepartment = (row) => ({
+  app_user_id: row.app_user_id,
   role_id: row.role_id,
   role_name: xss(row.role_name),
   department_id: row.department_id,
@@ -34,17 +36,12 @@ endpointRouter
       .getAllRowsWithDepartments(knexInstance)
       .then((rows) => {
         res.json(rows.map(serializeRowWithDepartment));
-        // res.json({
-        //   name: "guy",
-        //   // domain: DOMAIN,
-        //   // audience: AUDIENCE,
-        // });
       })
       .catch(next);
   })
   .post(jsonParser, checkJwt, (req, res, next) => {
-    const { role_name, department_id } = req.body;
-    const newRow = { role_name, department_id };
+    const { app_user_id, role_name, department_id } = req.body;
+    const newRow = { app_user_id, role_name, department_id };
 
     for (const [key, value] of Object.entries(newRow))
       if (value == null)
@@ -92,8 +89,8 @@ endpointRouter
   })
   .patch(jsonParser, (req, res, next) => {
     //REWRITE, use table's column names
-    const { role_name, role_id, department_id } = req.body;
-    const rowToUpdate = { role_name, role_id, department_id };
+    const { app_user_id, role_name, role_id, department_id } = req.body;
+    const rowToUpdate = { app_user_id, role_name, role_id, department_id };
 
     const numberOfValues = Object.values(rowToUpdate).filter(Boolean).length;
     if (numberOfValues === 0)

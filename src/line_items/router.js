@@ -6,12 +6,14 @@ const logger = require("../logger");
 
 const endpointRouter = express.Router();
 const jsonParser = express.json();
+const { checkJwt } = require("../authz/check-jwt");
 
 //REWRITE, include each row from table
 //serializeRowAmountTypePercent
 //serializeRowAmountTypeDollars
 
 const serializeRow = (row) => ({
+  app_user_id: row.app_user_id,
   line_item_category: row.line_item_category,
   line_item_id: row.line_item_id,
   line_item_name: xss(row.line_item_name),
@@ -23,6 +25,7 @@ const serializeRow = (row) => ({
 const table = {
   name: "line_item",
   columns: [
+    "app_user_id",
     "line_item_category",
     "line_item_name",
     "amount",
@@ -34,7 +37,7 @@ const table = {
 
 endpointRouter
   .route("/")
-  .get((req, res, next) => {
+  .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
       .getAllRows(knexInstance)
@@ -45,8 +48,9 @@ endpointRouter
   })
 
   //REWRITE
-  .post(jsonParser, (req, res, next) => {
+  .post(jsonParser, checkJwt, (req, res, next) => {
     const {
+      app_user_id,
       line_item_category,
       line_item_name,
       amount,
@@ -54,6 +58,7 @@ endpointRouter
       percent_of,
     } = req.body;
     const newRow = {
+      app_user_id,
       line_item_category,
       line_item_name,
       amount,
@@ -68,7 +73,6 @@ endpointRouter
         });
       }
     }
-    logger.error(newRow);
     endpointService
       .insertRow(req.app.get("db"), newRow)
       .then((row) => {
@@ -82,7 +86,7 @@ endpointRouter
 
 endpointRouter
   .route("/:row_id")
-  .all((req, res, next) => {
+  .all(checkJwt, (req, res, next) => {
     endpointService
       .getById(req.app.get("db"), req.params.row_id)
       .then((row) => {
@@ -110,6 +114,7 @@ endpointRouter
   .patch(jsonParser, (req, res, next) => {
     //REWRITE, use table's column names
     const {
+      app_user_id,
       line_item_category,
       line_item_name,
       amount,
@@ -117,6 +122,7 @@ endpointRouter
       percent_of,
     } = req.body;
     const rowToUpdate = {
+      app_user_id,
       line_item_category,
       line_item_name,
       amount,

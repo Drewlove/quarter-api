@@ -3,24 +3,38 @@ const express = require("express");
 const xss = require("xss");
 const endpointService = require("./service");
 const { checkJwt } = require("../authz/check-jwt");
+const logger = require("../logger");
 
 const endpointRouter = express.Router();
 const jsonParser = express.json();
 
 //REWRITE, include each row from table
 const serializeRow = (row) => ({
+  app_user_id: row.app_user_id,
   shift_id: row.shift_id,
   shift_day: row.shift_day,
   shift_department: row.shift_department,
   shift_role: row.shift_role,
   shift_start: row.shift_start,
   shift_end: row.shift_end,
-  people: xss(row.people),
-  wage: xss(row.wage),
-  shift_group_id: row.shift_group_id,
+  people: row.people,
+  wage: row.wage,
+  payroll_tax: row.payroll_tax,
+});
+
+const serializeRowDeptsAndRoles = (row) => ({
+  app_user_id: row.app_user_id,
+  shift_id: row.shift_id,
+  shift_day: row.shift_day,
+  shift_department: row.shift_department,
+  shift_role: row.shift_role,
+  shift_start: row.shift_start,
+  shift_end: row.shift_end,
+  people: row.people,
+  wage: row.wage,
+  payroll_tax: row.payroll_tax,
   department_name: row.department_name,
   role_name: row.role_name,
-  payroll_tax: xss(row.payroll_tax),
 });
 
 const table = {
@@ -46,13 +60,13 @@ endpointRouter
     endpointService
       .getAllRows(knexInstance)
       .then((rows) => {
-        res.json(rows.map(serializeRow));
+        res.json(rows.map(serializeRowDeptsAndRoles));
       })
       .catch(next);
   })
-
   .post(jsonParser, checkJwt, (req, res, next) => {
     const {
+      app_user_id,
       shift_day,
       shift_department,
       shift_role,
@@ -60,8 +74,10 @@ endpointRouter
       shift_end,
       people,
       wage,
+      payroll_tax,
     } = req.body;
     const newRow = {
+      app_user_id,
       shift_day,
       shift_department,
       shift_role,
@@ -69,6 +85,7 @@ endpointRouter
       shift_end,
       people,
       wage,
+      payroll_tax,
     };
 
     for (const [key, value] of Object.entries(newRow))
@@ -118,6 +135,7 @@ endpointRouter
   .patch(jsonParser, (req, res, next) => {
     //REWRITE, use table's column names
     const {
+      app_user_id,
       shift_id,
       shift_day,
       shift_department,
@@ -126,10 +144,10 @@ endpointRouter
       shift_end,
       people,
       wage,
-      shift_group_id,
       payroll_tax,
     } = req.body;
     const rowToUpdate = {
+      app_user_id,
       shift_id,
       shift_day,
       shift_department,
@@ -138,7 +156,6 @@ endpointRouter
       shift_end,
       people,
       wage,
-      shift_group_id,
       payroll_tax,
     };
 
