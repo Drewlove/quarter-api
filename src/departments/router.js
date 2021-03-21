@@ -24,14 +24,15 @@ endpointRouter
   // .get(checkJwt, (req, res, next) => {
   .route("/")
   .get((req, res, next) => {
-    const knexInstance = req.app.get("db");
-    endpointService
-      // .getAllRows(knexInstance, req.params.app_user_id)
-      .getAllRows(knexInstance)
-      .then((rows) => {
-        res.json(rows.map(serializeRow));
-      })
-      .catch(next);
+    res.json({ ok: true });
+    // const knexInstance = req.app.get("db");
+    // endpointService
+    //   // .getAllRows(knexInstance, req.params.app_user_id)
+    //   .getAllRows(knexInstance)
+    //   .then((rows) => {
+    //     res.json(rows.map(serializeRow));
+    //   })
+    //   .catch(next);
   })
   .post(jsonParser, checkJwt, (req, res, next) => {
     const { department_name } = req.body;
