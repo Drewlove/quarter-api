@@ -26,7 +26,8 @@ endpointRouter
   .get((req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
-      .getAllRows(knexInstance, req.params.app_user_id)
+      // .getAllRows(knexInstance, req.params.app_user_id)
+      .getAllRows(knexInstance)
       .then((rows) => {
         res.json(rows.map(serializeRow));
       })
