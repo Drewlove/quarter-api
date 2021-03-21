@@ -4,12 +4,15 @@ const table = {
 };
 
 const service = {
-  getAllRows(knex, app_user_id) {
-    return knex
-      .select("*")
-      .from(table.name)
-      .where(`app_user_id`, app_user_id)
-      .orderBy(table.orderRow, "ASC");
+  // getAllRows(knex, app_user_id) {
+  getAllRows(knex) {
+    return (
+      knex
+        .select("*")
+        .from(table.name)
+        // .where(`app_user_id`, app_user_id)
+        .orderBy(table.orderRow, "ASC")
+    );
   },
   getById(knex, app_user_id, row_id) {
     return knex
