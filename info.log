@@ -1,1 +1,3 @@
-{"message":"603aa00aae08220070737444","level":"info"}
+{"message":"4009d992-88b9-407f-9ba6-92e757730e7a","level":"error"}
+{"message":"1234","level":"error"}
+{"message":"Unauthorized request to path: /api/departments","level":"error"}
