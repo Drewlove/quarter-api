@@ -28,7 +28,8 @@ app.use(cors());
 app.use(helmet());
 
 // app.use(validateBearerToken);
-app.use("/api/departments", departmentsRouter);
+// app.use("/api/departments", departmentsRouter);
+app.use("/departments", departmentsRouter);
 app.use("/api/roles", rolesRouter);
 app.use("/api/shifts", shiftsRouter);
 app.use("/api/line_items", lineItemsRouter);
