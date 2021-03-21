@@ -3,12 +3,10 @@ const express = require("express");
 const xss = require("xss");
 const endpointService = require("./service");
 const { checkJwt } = require("../authz/check-jwt");
-const logger = require("../logger");
 
 const endpointRouter = express.Router();
 const jsonParser = express.json();
 
-//REWRITE, include each row from table
 const serializeRow = (row) => ({
   app_user_id: row.app_user_id,
   shift_id: row.shift_id,
@@ -23,7 +21,6 @@ const serializeRow = (row) => ({
 });
 
 const serializeRowDeptsAndRoles = (row) => ({
-  app_user_id: row.app_user_id,
   shift_id: row.shift_id,
   shift_day: row.shift_day,
   shift_department: row.shift_department,
@@ -54,11 +51,11 @@ const table = {
 };
 
 endpointRouter
-  .route("/")
+  .route("/:app_user_id")
   .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
-      .getAllRows(knexInstance)
+      .getAllRows(knexInstance, req.params.app_user_id)
       .then((rows) => {
         res.json(rows.map(serializeRowDeptsAndRoles));
       })
@@ -66,7 +63,6 @@ endpointRouter
   })
   .post(jsonParser, checkJwt, (req, res, next) => {
     const {
-      app_user_id,
       shift_day,
       shift_department,
       shift_role,
@@ -76,6 +72,7 @@ endpointRouter
       wage,
       payroll_tax,
     } = req.body;
+    const app_user_id = req.params.app_user_id;
     const newRow = {
       app_user_id,
       shift_day,
@@ -106,10 +103,10 @@ endpointRouter
   });
 
 endpointRouter
-  .route("/:row_id")
+  .route("/:app_user_id/:row_id")
   .all(checkJwt, (req, res, next) => {
     endpointService
-      .getById(req.app.get("db"), req.params.row_id)
+      .getById(req.app.get("db"), req.params.app_user_id, req.params.row_id)
       .then((row) => {
         if (!row) {
           return res.status(404).json({
@@ -126,16 +123,14 @@ endpointRouter
   })
   .delete((req, res, next) => {
     endpointService
-      .deleteRow(req.app.get("db"), req.params.row_id)
+      .deleteRow(req.app.get("db"), req.params.app_user_id, req.params.row_id)
       .then((numRowsAffected) => {
         res.status(204).end();
       })
       .catch(next);
   })
   .patch(jsonParser, (req, res, next) => {
-    //REWRITE, use table's column names
     const {
-      app_user_id,
       shift_id,
       shift_day,
       shift_department,
@@ -147,7 +142,6 @@ endpointRouter
       payroll_tax,
     } = req.body;
     const rowToUpdate = {
-      app_user_id,
       shift_id,
       shift_day,
       shift_department,
@@ -168,7 +162,12 @@ endpointRouter
       });
 
     endpointService
-      .updateRow(req.app.get("db"), req.params.row_id, rowToUpdate)
+      .updateRow(
+        req.app.get("db"),
+        req.params.app_user_id,
+        req.params.row_id,
+        rowToUpdate
+      )
       .then((numRowsAffected) => {
         res.status(204).end();
       })

@@ -8,10 +8,6 @@ const endpointRouter = express.Router();
 const jsonParser = express.json();
 const { checkJwt } = require("../authz/check-jwt");
 
-//REWRITE, include each row from table
-//serializeRowAmountTypePercent
-//serializeRowAmountTypeDollars
-
 const serializeRow = (row) => ({
   app_user_id: row.app_user_id,
   line_item_category: row.line_item_category,
@@ -36,27 +32,26 @@ const table = {
 };
 
 endpointRouter
-  .route("/")
+  .route("/:app_user_id")
   .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
-      .getAllRows(knexInstance)
+      .getAllRows(knexInstance, req.params.app_user_id)
       .then((rows) => {
         res.json(rows.map(serializeRow));
       })
       .catch(next);
   })
 
-  //REWRITE
   .post(jsonParser, checkJwt, (req, res, next) => {
     const {
-      app_user_id,
       line_item_category,
       line_item_name,
       amount,
       line_item_amount_type,
       percent_of,
     } = req.body;
+    const app_user_id = req.params.app_user_id;
     const newRow = {
       app_user_id,
       line_item_category,
@@ -85,10 +80,10 @@ endpointRouter
   });
 
 endpointRouter
-  .route("/:row_id")
+  .route("/:app_user_id/:row_id")
   .all(checkJwt, (req, res, next) => {
     endpointService
-      .getById(req.app.get("db"), req.params.row_id)
+      .getById(req.app.get("db"), req.params.app_user_id, req.params.row_id)
       .then((row) => {
         if (!row) {
           return res.status(404).json({
@@ -105,7 +100,7 @@ endpointRouter
   })
   .delete((req, res, next) => {
     endpointService
-      .deleteRow(req.app.get("db"), req.params.row_id)
+      .deleteRow(req.app.get("db"), req.params.app_user_id, req.params.row_id)
       .then((numRowsAffected) => {
         res.status(204).end();
       })
@@ -114,15 +109,14 @@ endpointRouter
   .patch(jsonParser, (req, res, next) => {
     //REWRITE, use table's column names
     const {
-      app_user_id,
       line_item_category,
       line_item_name,
       amount,
       line_item_amount_type,
       percent_of,
     } = req.body;
+    const app_user_id = req.params.app_user_id;
     const rowToUpdate = {
-      app_user_id,
       line_item_category,
       line_item_name,
       amount,
@@ -138,7 +132,12 @@ endpointRouter
         },
       });
     endpointService
-      .updateRow(req.app.get("db"), req.params.row_id, rowToUpdate)
+      .updateRow(
+        req.app.get("db"),
+        req.params.app_user_id,
+        req.params.row_id,
+        rowToUpdate
+      )
       .then((numRowsAffected) => {
         res.status(204).end();
       })

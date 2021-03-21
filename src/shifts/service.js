@@ -1,10 +1,9 @@
-//REWRITE, make note of 'orderRow' if you want rows returned alphabetically
 const table = {
   name: "shift",
   orderRow: "shift_id",
 };
 const service = {
-  getAllRows(knex) {
+  getAllRows(knex, app_user_id) {
     return knex
       .select("*")
       .from(table.name)
@@ -14,9 +13,10 @@ const service = {
         "=",
         "department.department_id"
       )
-      .join("role", "shift.shift_role", "=", "role.role_id");
+      .join("role", "shift.shift_role", "=", "role.role_id")
+      .where(`shift.app_user_id`, app_user_id);
   },
-  getById(knex, row_id) {
+  getById(knex, app_user_id, row_id) {
     return knex
       .from(table.name)
       .select("*")
@@ -28,6 +28,7 @@ const service = {
       )
       .join("role", "shift.shift_role", "=", "role.role_id")
       .where(`${table.name}_id`, row_id)
+      .where("shift.app_user_id", app_user_id)
       .first();
   },
   insertRow(knex, newRow) {
@@ -39,11 +40,17 @@ const service = {
         return rows[0];
       });
   },
-  updateRow(knex, row_id, newFields) {
-    return knex(table.name).where(`${table.name}_id`, row_id).update(newFields);
+  updateRow(knex, app_user_id, row_id, newFields) {
+    return knex(table.name)
+      .where(`${table.name}_id`, row_id)
+      .where("shift.app_user_id", app_user_id)
+      .update(newFields);
   },
-  deleteRow(knex, row_id) {
-    return knex(table.name).where(`${table.name}_id`, row_id).delete();
+  deleteRow(knex, app_user_id, row_id) {
+    return knex(table.name)
+      .where(`${table.name}_id`, row_id)
+      .where("shift.app_user_id", app_user_id)
+      .delete();
   },
 };
 

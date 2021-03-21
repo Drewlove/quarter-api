@@ -11,11 +11,12 @@ const service = {
       .where(`app_user_id`, app_user_id)
       .orderBy(table.orderRow, "ASC");
   },
-  getById(knex, row_id) {
+  getById(knex, app_user_id, row_id) {
     return knex
       .from(table.name)
       .select("*")
       .where(`${table.name}_id`, row_id)
+      .where("app_user_id", app_user_id)
       .first();
   },
   insertRow(knex, newRow) {
@@ -27,11 +28,17 @@ const service = {
         return rows[0];
       });
   },
-  updateRow(knex, row_id, newFields) {
-    return knex(table.name).where(`${table.name}_id`, row_id).update(newFields);
+  updateRow(knex, app_user_id, row_id, newFields) {
+    return knex(table.name)
+      .where(`${table.name}_id`, row_id)
+      .where("app_user_id", app_user_id)
+      .update(newFields);
   },
-  deleteRow(knex, row_id) {
-    return knex(table.name).where(`${table.name}_id`, row_id).delete();
+  deleteRow(knex, app_user_id, row_id) {
+    return knex(table.name)
+      .where(`${table.name}_id`, row_id)
+      .where("app_user_id", app_user_id)
+      .delete();
   },
 };
 
