@@ -20,8 +20,9 @@ const table = {
 };
 
 endpointRouter
-  .route("/:app_user_id")
+  // .route("/:app_user_id")
   // .get(checkJwt, (req, res, next) => {
+  .route("/")
   .get((req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
