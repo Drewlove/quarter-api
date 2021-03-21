@@ -21,7 +21,8 @@ const table = {
 
 endpointRouter
   .route("/:app_user_id")
-  .get(checkJwt, (req, res, next) => {
+  // .get(checkJwt, (req, res, next) => {
+  .get((req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
       .getAllRows(knexInstance, req.params.app_user_id)
