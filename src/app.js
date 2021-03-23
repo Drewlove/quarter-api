@@ -6,6 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const validateBearerToken = require("./validate-bearer-token");
+const { PORT, DATABASE_URL } = require("./config");
 
 const departmentsRouter = require("./departments/router");
 const rolesRouter = require("./roles/router");
@@ -35,7 +36,7 @@ app.use("/api/line_items", lineItemsRouter);
 
 //Open heroku url in browser, see if {ok: true} appears
 app.get("/TEST", (req, res) => {
-  res.json({ ok: true });
+  res.json({ db: DATABASE_URL });
 });
 
 app.use(function errorHandler(error, req, res, next) {
