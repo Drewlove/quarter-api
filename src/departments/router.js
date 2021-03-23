@@ -6,6 +6,7 @@ const endpointRouter = express.Router();
 const jsonParser = express.json();
 const { checkJwt } = require("../authz/check-jwt");
 // const logger = require("../logger");
+const app = express();
 
 const serializeRow = (row) => ({
   app_user_id: row.app_user_id,
@@ -20,21 +21,19 @@ const table = {
 };
 
 endpointRouter
-  .get((req, res) => {
-    res.json({ ok: true });
-  })
   // .route("/:app_user_id")
-  // .route("/");
-  // .get(checkJwt, (req, res, next) => {
-  //   const knexInstance = req.app.get("db");
-  //   endpointService
-  //     // .getAllRows(knexInstance, req.params.app_user_id)
-  //     .getAllRows(knexInstance)
-  //     .then((rows) => {
-  //       res.json(rows.map(serializeRow));
-  //     })
-  //     .catch(next);
-  // })
+  .route("/")
+  .get((req, res, next) => {
+    // .get(checkJwt, (req, res, next) => {
+    const knexInstance = req.app.get("db");
+    endpointService
+      // .getAllRows(knexInstance, req.params.app_user_id)
+      .getAllRows(knexInstance)
+      .then((rows) => {
+        res.json(rows.map(serializeRow));
+      })
+      .catch(next);
+  })
   .post(jsonParser, checkJwt, (req, res, next) => {
     const { department_name } = req.body;
     const app_user_id = req.params.app_user_id;
