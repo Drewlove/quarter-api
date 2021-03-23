@@ -3,7 +3,7 @@ const table = {
   orderRow: "shift_id",
 };
 const service = {
-  getAllRows(knex, app_user_id) {
+  getAllRowsMatchingUserId(knex, app_user_id) {
     return knex
       .select("*")
       .from(table.name)

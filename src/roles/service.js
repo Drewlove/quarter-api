@@ -7,7 +7,7 @@ const service = {
   getAllRows(knex) {
     return knex.select("*").from(table.name).orderBy(table.orderRow, "ASC");
   },
-  getAllRowsWithDepartments(knex, app_user_id) {
+  getAllRowsMatchingUserIdWithDepartments(knex, app_user_id) {
     return knex("role")
       .join("department", "role.department_id", "=", "department.department_id")
       .select(

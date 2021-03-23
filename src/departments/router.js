@@ -20,15 +20,21 @@ const table = {
   rowId: "department_id",
 };
 
+endpointRouter.route("/").get((req, res, next) => {
+  const knexInstance = req.app.get("db");
+  endpointService
+    .getAllRows(knexInstance)
+    .then((rows) => {
+      res.json(rows.map(serializeRow));
+    })
+    .catch(next);
+});
 endpointRouter
-  // .route("/:app_user_id")
-  .route("/")
-  .get((req, res, next) => {
-    // .get(checkJwt, (req, res, next) => {
+  .route("/:app_user_id")
+  .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
-      // .getAllRows(knexInstance, req.params.app_user_id)
-      .getAllRows(knexInstance)
+      .getAllRowsMatchingUserId(knexInstance, req.params.app_user_id)
       .then((rows) => {
         res.json(rows.map(serializeRow));
       })

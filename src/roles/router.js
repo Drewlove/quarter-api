@@ -32,7 +32,10 @@ endpointRouter
   .get(checkJwt, (req, res, next) => {
     const knexInstance = req.app.get("db");
     endpointService
-      .getAllRowsWithDepartments(knexInstance, req.params.app_user_id)
+      .getAllRowsMatchingUserIdWithDepartments(
+        knexInstance,
+        req.params.app_user_id
+      )
       .then((rows) => {
         res.json(rows.map(serializeRowWithDepartment));
       })
