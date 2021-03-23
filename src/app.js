@@ -36,7 +36,7 @@ app.use("/api/line_items", lineItemsRouter);
 
 //Open heroku url in browser, see if {ok: true} appears
 app.get("/TEST", (req, res) => {
-  res.json({ db: DATABASE_URL });
+  res.json({ ok: true });
 });
 
 app.use(function errorHandler(error, req, res, next) {
