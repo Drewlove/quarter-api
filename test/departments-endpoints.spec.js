@@ -11,7 +11,7 @@ const API_TOKEN = process.env.API_TOKEN;
 
 const table = {
   name: "department",
-  endpoint: "departments/1",
+  endpoint: "departments/test/1",
   columns: ["app_user_id", "department_name"],
   xssColumn: "department_name",
   updatedColumn: {

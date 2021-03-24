@@ -1,23 +1,23 @@
 function makeRows() {
   return [
     {
-      id: 1,
-      app_user_id: 1,
+      department_id: "1",
+      app_user_id: "1",
       department_name: "kitchen",
     },
     {
-      id: 2,
-      app_user_id: 1,
+      department_id: "2",
+      app_user_id: "1",
       department_name: "service",
     },
     {
-      id: 3,
-      app_user_id: 2,
+      department_id: "3",
+      app_user_id: "2",
       department_name: "back of house",
     },
     {
-      id: 4,
-      app_user_id: 2,
+      department_id: "4",
+      app_user_id: "2",
       department_name: "front of house",
     },
   ];
@@ -26,8 +26,8 @@ function makeRows() {
 function makeRow() {
   return [
     {
-      id: 5,
-      app_user_id: 1,
+      department_id: "5",
+      app_user_id: "1",
       department_name: "management",
     },
   ];
@@ -35,8 +35,8 @@ function makeRow() {
 
 function makeMaliciousRow() {
   const maliciousRow = {
-    id: 4,
-    app_user_id: 2,
+    department_id: "4",
+    app_user_id: "2",
     department_name:
       'Naughty naughty very naughty <script>alert("xss");</script>',
   };

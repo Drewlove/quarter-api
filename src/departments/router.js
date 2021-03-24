@@ -29,17 +29,30 @@ endpointRouter.route("/").get((req, res, next) => {
     .catch(next);
 });
 
+function testApi(req, res, next) {
+  const knexInstance = req.app.get("db");
+  endpointService
+    .getAllRowsMatchingUserId(knexInstance, req.params.app_user_id)
+    .then((rows) => {
+      res.json(rows.map(serializeRow));
+    })
+    .catch(next);
+}
+
+endpointRouter.route("/:app_user_id").get(checkJwt, testApi);
+
 endpointRouter
-  .route("/:app_user_id")
-  .get(checkJwt, (req, res, next) => {
-    const knexInstance = req.app.get("db");
-    endpointService
-      .getAllRowsMatchingUserId(knexInstance, req.params.app_user_id)
-      .then((rows) => {
-        res.json(rows.map(serializeRow));
-      })
-      .catch(next);
-  })
+  .route("/test/:app_user_id")
+  .get(testApi)
+  //(req, res, next) => {
+  //   const knexInstance = req.app.get("db");
+  //   endpointService
+  //     .getAllRowsMatchingUserId(knexInstance, req.params.app_user_id)
+  //     .then((rows) => {
+  //       res.json(rows.map(serializeRow));
+  //     })
+  //     .catch(next);
+  // })
   .post(jsonParser, checkJwt, (req, res, next) => {
     const { department_name } = req.body;
     const app_user_id = req.params.app_user_id;
