@@ -6,7 +6,6 @@ const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const validateBearerToken = require("./validate-bearer-token");
-const { PORT, DATABASE_URL } = require("./config");
 
 const departmentsRouter = require("./departments/router");
 const rolesRouter = require("./roles/router");
