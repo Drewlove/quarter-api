@@ -5,7 +5,6 @@ const endpointService = require("./service");
 const endpointRouter = express.Router();
 const jsonParser = express.json();
 const { checkJwt } = require("../authz/check-jwt");
-// const logger = require("../logger");
 const app = express();
 
 const serializeRow = (row) => ({
