@@ -18,7 +18,7 @@ const service = {
         "department.department_name"
       )
       .where(`role.app_user_id`, app_user_id)
-      .orderBy("role.role_name", "ASC");
+      .orderByRaw(`lower(${table.orderRow}) ASC`);
   },
   getById(knex, app_user_id, row_id) {
     return knex("role")

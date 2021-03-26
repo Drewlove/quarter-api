@@ -9,7 +9,7 @@ const service = {
       .select("*")
       .from(table.name)
       .where("line_item.app_user_id", app_user_id)
-      .orderBy(table.orderRow, "ASC");
+      .orderByRaw(`lower(${table.orderRow}) ASC`);
   },
   getById(knex, app_user_id, row_id) {
     return knex
