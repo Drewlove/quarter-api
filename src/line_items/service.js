@@ -1,4 +1,3 @@
-//REWRITE, make note of 'orderRow' if you want rows returned alphabetically
 const table = {
   name: "line_item",
   orderRow: "line_item_name",
