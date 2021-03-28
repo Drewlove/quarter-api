@@ -228,9 +228,9 @@ describe(`${config.table.name} endpoints`, function () {
   describe(`PATCH ${config.endpoint}/${config.userId}/1`, () => {
     context(`Given no rows`, () => {
       it(`responds with 404`, () => {
-        const rowIdName = 1;
+        const rowId = "1";
         return supertest(app)
-          .patch(`${config.endpoint}/${config.userId}/${rowIdName}`)
+          .patch(`${config.endpoint}/${config.userId}/${rowId}`)
           .expect(404, {
             error: {
               message: `Row from table: '${config.table.name}' doesn't exist`,

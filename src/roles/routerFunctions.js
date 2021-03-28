@@ -3,32 +3,42 @@ const xss = require("xss");
 const endpointService = require("./service");
 
 const table = {
-  name: "department",
-  columns: ["department_name"],
+  name: "role",
+  columns: ["role_id", "role_name", "department_id"],
+  rowId: "role_id",
 };
 
 const serializeRow = (row) => ({
   app_user_id: row.app_user_id,
+  role_id: row.role_id,
+  role_name: xss(row.role_name),
   department_id: row.department_id,
-  department_name: xss(row.department_name),
 });
 
 const routerFunctions = {
-  getAllRowsMatchingUserId(req, res, next) {
+  getAllRowsMatchingUserIdWithDepartments(req, res, next) {
     const knexInstance = req.app.get("db");
     endpointService
-      .getAllRowsMatchingUserId(knexInstance, req.params.app_user_id)
+      .getAllRowsMatchingUserIdWithDepartments(
+        knexInstance,
+        req.params.app_user_id
+      )
       .then((rows) => {
         res.json(rows.map(serializeRow));
       })
       .catch(next);
   },
   insertRow(req, res, next) {
-    const { department_name } = req.body;
+    const { role_name, department_id } = req.body;
     const app_user_id = req.params.app_user_id;
-    const newRow = { department_name, app_user_id };
+    const newRow = {
+      role_name,
+      department_id,
+      app_user_id,
+    };
+
     for (const [key, value] of Object.entries(newRow))
-      if (value == null)
+      if (key !== "percent_of" && value == null)
         return res.status(400).json({
           error: { message: `Missing '${key}' in request body` },
         });
@@ -38,7 +48,7 @@ const routerFunctions = {
       .then((row) => {
         res
           .status(201)
-          .location(path.posix.join(req.originalUrl, `/${row.department_id}`))
+          .location(path.posix.join(req.originalUrl, `/${row[table.rowId]}`))
           .json(serializeRow(row));
       })
       .catch(next);
@@ -68,15 +78,20 @@ const routerFunctions = {
       .catch(next);
   },
   patch(req, res, next) {
-    const { department_name } = req.body;
-    const rowToUpdate = { department_name };
+    const { role_name, department_id } = req.body;
+    const rowToUpdate = {
+      role_name,
+      department_id,
+    };
+
     const numberOfValues = Object.values(rowToUpdate).filter(Boolean).length;
-    if (numberOfValues === 0)
+    if (numberOfValues === 0) {
       return res.status(400).json({
         error: {
           message: `Request body content must contain at least one of the following: ${table.columns}`,
         },
       });
+    }
 
     endpointService
       .updateRow(

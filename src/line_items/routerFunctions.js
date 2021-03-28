@@ -5,7 +5,6 @@ const endpointService = require("./service");
 const table = {
   name: "line_item",
   columns: [
-    "app_user_id",
     "line_item_category",
     "line_item_name",
     "amount",
@@ -36,37 +35,36 @@ const routerFunctions = {
       .catch(next);
   },
   insertRow(req, res, next) {
-    //rewrite
-    const app_user_id = req.params.app_user_id;
     const {
       line_item_category,
+      line_item_id,
       line_item_name,
       amount,
       line_item_amount_type,
       percent_of,
     } = req.body;
+    const app_user_id = req.params.app_user_id;
     const newRow = {
-      app_user_id,
       line_item_category,
+      line_item_id,
       line_item_name,
       amount,
       line_item_amount_type,
       percent_of,
+      app_user_id,
     };
-    //rewrite, any keys where null values are permissible?
     for (const [key, value] of Object.entries(newRow))
-      if (key !== "percent_of" && value == null) {
+      if (key !== "percent_of" && value == null)
         return res.status(400).json({
           error: { message: `Missing '${key}' in request body` },
         });
-      }
 
     endpointService
       .insertRow(req.app.get("db"), newRow)
       .then((row) => {
         res
           .status(201)
-          .location(path.posix.join(req.originalUrl, `/${table.rowId}`))
+          .location(path.posix.join(req.originalUrl, `/${row[table.rowId]}`))
           .json(serializeRow(row));
       })
       .catch(next);
@@ -106,7 +104,6 @@ const routerFunctions = {
       percent_of,
     } = req.body;
     const rowToUpdate = {
-      app_user_id,
       line_item_category,
       line_item_name,
       amount,
@@ -116,7 +113,6 @@ const routerFunctions = {
 
     const numberOfValues = Object.values(rowToUpdate).filter(Boolean).length;
     if (numberOfValues === 0) {
-      console.log(rowToUpdate);
       return res.status(400).json({
         error: {
           message: `Request body content must contain at least one of the following: ${table.columns}`,
