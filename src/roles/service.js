@@ -24,6 +24,7 @@ const service = {
     return knex("role")
       .join("department", "role.department_id", "=", "department.department_id")
       .select(
+        "role.app_user_id",
         "role.role_id",
         "role.role_name",
         "department.department_id",

@@ -4,7 +4,7 @@ const endpointService = require("./service");
 
 const table = {
   name: "role",
-  columns: ["role_id", "role_name", "department_id"],
+  columns: ["role_name", "department_id"],
   rowId: "role_id",
 };
 
@@ -92,7 +92,6 @@ const routerFunctions = {
         },
       });
     }
-
     endpointService
       .updateRow(
         req.app.get("db"),

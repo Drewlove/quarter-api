@@ -116,10 +116,6 @@ function getNewRow() {
 
 function makeMaliciousRow() {
   const maliciousRow = {
-    // department_id: 1,
-    // app_user_id: "1",
-    // department_name:
-    //   'Naughty naughty very naughty <script>alert("xss");</script>',
     line_item_id: 1,
     app_user_id: 1,
     line_item_category: "sales",
