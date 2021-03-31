@@ -1,27 +1,47 @@
 const path = require("path");
-const xss = require("xss");
 const endpointService = require("./service");
 
 const table = {
-  name: "line_item",
+  name: "shift",
   columns: [
-    "line_item_category",
-    "line_item_name",
-    "amount",
-    "line_item_amount_type",
-    "percent_of",
+    "shift_day",
+    "shift_department",
+    "shift_role",
+    "shift_start",
+    "shift_end",
+    "people",
+    "wage",
+    "payroll_tax",
   ],
-  rowId: "line_item_id",
+  rowId: "shift_id",
 };
 
 const serializeRow = (row) => ({
   app_user_id: row.app_user_id,
-  line_item_category: row.line_item_category,
-  line_item_id: row.line_item_id,
-  line_item_name: xss(row.line_item_name),
-  amount: row.amount,
-  line_item_amount_type: row.line_item_amount_type,
-  percent_of: row.percent_of,
+  shift_id: row.shift_id,
+  shift_day: row.shift_day,
+  shift_department: row.shift_department,
+  shift_role: row.shift_role,
+  shift_start: row.shift_start,
+  shift_end: row.shift_end,
+  people: row.people,
+  wage: row.wage,
+  payroll_tax: row.payroll_tax,
+});
+
+const serializeRowDeptsAndRoles = (row) => ({
+  app_user_id: row.app_user_id,
+  shift_id: row.shift_id,
+  shift_day: row.shift_day,
+  shift_department: row.shift_department,
+  shift_role: row.shift_role,
+  shift_start: row.shift_start,
+  shift_end: row.shift_end,
+  people: row.people,
+  wage: row.wage,
+  payroll_tax: row.payroll_tax,
+  department_name: row.department_name,
+  role_name: row.role_name,
 });
 
 const routerFunctions = {
@@ -30,29 +50,36 @@ const routerFunctions = {
     endpointService
       .getAllRowsMatchingUserId(knexInstance, req.params.app_user_id)
       .then((rows) => {
-        res.json(rows.map(serializeRow));
+        res.json(rows.map(serializeRowDeptsAndRoles));
       })
       .catch(next);
   },
   insertRow(req, res, next) {
     const {
-      line_item_category,
-      line_item_name,
-      amount,
-      line_item_amount_type,
-      percent_of,
+      shift_day,
+      shift_department,
+      shift_role,
+      shift_start,
+      shift_end,
+      people,
+      wage,
+      payroll_tax,
     } = req.body;
     const app_user_id = req.params.app_user_id;
     const newRow = {
-      line_item_category,
-      line_item_name,
-      amount,
-      line_item_amount_type,
-      percent_of,
+      shift_day,
+      shift_department,
+      shift_role,
+      shift_start,
+      shift_end,
+      people,
+      wage,
+      payroll_tax,
       app_user_id,
     };
+
     for (const [key, value] of Object.entries(newRow))
-      if (key !== "percent_of" && value == null)
+      if (value == null)
         return res.status(400).json({
           error: { message: `Missing '${key}' in request body` },
         });
@@ -92,20 +119,27 @@ const routerFunctions = {
       .catch(next);
   },
   patch(req, res, next) {
-    const app_user_id = req.params.app_user_id;
     const {
-      line_item_category,
-      line_item_name,
-      amount,
-      line_item_amount_type,
-      percent_of,
+      shift_id,
+      shift_day,
+      shift_department,
+      shift_role,
+      shift_start,
+      shift_end,
+      people,
+      wage,
+      payroll_tax,
     } = req.body;
     const rowToUpdate = {
-      line_item_category,
-      line_item_name,
-      amount,
-      line_item_amount_type,
-      percent_of,
+      shift_id,
+      shift_day,
+      shift_department,
+      shift_role,
+      shift_start,
+      shift_end,
+      people,
+      wage,
+      payroll_tax,
     };
 
     const numberOfValues = Object.values(rowToUpdate).filter(Boolean).length;
@@ -116,7 +150,6 @@ const routerFunctions = {
         },
       });
     }
-
     endpointService
       .updateRow(
         req.app.get("db"),

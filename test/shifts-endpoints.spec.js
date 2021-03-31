@@ -1,33 +1,34 @@
 const knex = require("knex");
 const app = require("../src/app");
-const {
-  makeRows,
-  makeUpdatedRow,
-  makeNewRow,
-  makeMaliciousRow,
-} = require("./line_items.fixtures");
+const fixtures = require("./shifts.fixtures");
 const { expect } = require("chai");
+const supertest = require("supertest");
 
 const config = {
+  allTables: ["department", "role", "shift"],
+  referenceTables: ["department", "role"],
   table: {
-    name: "line_item",
+    name: "shift",
     columns: [
-      "line_item_category",
-      "line_item_name",
-      "amount",
-      "line_item_amount_type",
-      "percent_of",
+      "shift_day",
+      "shift_department",
+      "shift_role",
+      "shift_start",
+      "shift_end",
+      "people",
+      "wage",
+      "payroll_tax",
     ],
-    sortColumn: "line_item_name",
-    nullColumns: ["percent_of"],
-    xssColumn: "line_item_name",
+    sortColumn: null,
+    nullColumns: [],
+    xssColumn: "role_name",
     updatedColumn: {
-      line_item_name: "updated food",
+      wage: "17.50",
     },
   },
-  endpoint: "/api/line_items/test",
+  endpoint: "/api/shifts/test",
   userId: "1",
-  rowIdName: "line_item_id",
+  rowIdName: "shift_id",
 };
 
 describe(`${config.table.name} endpoints`, function () {
@@ -41,14 +42,36 @@ describe(`${config.table.name} endpoints`, function () {
     app.set("db", db);
   });
 
-  after("disconnect from db", () => db.destroy());
-  before("clean the table", () =>
-    db.raw(`TRUNCATE table ${config.table.name} RESTART IDENTITY CASCADE`)
-  );
+  const fillReferenceTables = () => {
+    const testRows = fixtures.makeRows();
+    config.referenceTables.forEach((key) => {
+      beforeEach(`insert ${key} rows`, () => {
+        return db.into(key).insert(testRows[key]);
+      });
+    });
+  };
 
-  afterEach("cleanup", () =>
-    db.raw(`TRUNCATE table ${config.table.name} RESTART IDENTITY CASCADE`)
-  );
+  const fillAllTables = () => {
+    const testRows = fixtures.makeRows();
+    config.allTables.forEach((key) => {
+      beforeEach(`insert ${key} rows`, () => {
+        return db.into(key).insert(testRows[key]);
+      });
+    });
+  };
+
+  after("disconnect from db", () => db.destroy());
+  config.allTables.forEach((key) => {
+    before("clean the table", () =>
+      db.raw(`TRUNCATE table ${key} RESTART IDENTITY CASCADE`)
+    );
+  });
+
+  config.allTables.forEach((key) => {
+    afterEach("cleanup", () =>
+      db.raw(`TRUNCATE table ${key} RESTART IDENTITY CASCADE`)
+    );
+  });
 
   describe(`GET ${config.endpoint}`, () => {
     context(`Given no rows in table ${config.table.name}`, () => {
@@ -61,15 +84,13 @@ describe(`${config.table.name} endpoints`, function () {
   });
 
   context(
-    `Given there are rows in table ${config.table.name} in the database`,
+    `Given there are rows in table(s): ${config.table.name}, ${config.referenceTables} in the database`,
     () => {
-      const testRows = makeRows();
+      const testRows = fixtures.makeShiftsWithRelationalColumns();
       const filteredRowsById = testRows.filter(
         (row) => row.app_user_id === config.userId
       );
-      beforeEach("insert rows", () => {
-        return db.into(config.table.name).insert(testRows);
-      });
+      fillAllTables();
       it("responds with 200 and all of the rows matching userId", () => {
         return supertest(app)
           .get(`${config.endpoint}/${config.userId}`)
@@ -78,46 +99,18 @@ describe(`${config.table.name} endpoints`, function () {
             expect(res.body.length).to.eql(filteredRowsById.length);
           })
           .expect((res) => {
-            let sortedRes = res.body.sort((a, b) => {
-              return a[config.table.sortColumn].localeCompare(
-                b[config.table.sortColumn]
-              );
-            });
-            let sortedfilteredRowsById = filteredRowsById.sort((a, b) => {
-              return a[config.table.sortColumn].localeCompare(
-                b[config.table.sortColumn]
-              );
-            });
-            expect(sortedRes).to.eql(sortedfilteredRowsById);
+            expect(res.body).to.eql(filteredRowsById);
           });
       });
     }
   );
 
-  context(`Given an XSS attack`, () => {
-    const { maliciousRow, expectedRow } = makeMaliciousRow();
-    beforeEach("insert malicious row", () => {
-      return db.into(config.table.name).insert(maliciousRow);
-    });
-
-    it("removes XSS attack content", () => {
-      return supertest(app)
-        .get(`${config.endpoint}/${config.userId}`)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body[0][config.table.xssColumn]).to.eql(
-            expectedRow[config.table.xssColumn]
-          );
-        });
-    });
-  });
-
-  describe(`GET ${config.endpoint}/${config.userId}/:rowIdName`, () => {
-    const rowIdName = 2;
+  describe(`GET ${config.endpoint}/${config.userId}/1`, () => {
+    const rowId = 1;
     context(`Given no rows`, () => {
       it(`responds with 404`, () => {
         return supertest(app)
-          .get(`${config.endpoint}/${config.userId}/${rowIdName}`)
+          .get(`${config.endpoint}/${config.userId}/${rowId}`)
           .expect(404, {
             error: {
               message: `Row from table: '${config.table.name}' doesn't exist`,
@@ -125,41 +118,23 @@ describe(`${config.table.name} endpoints`, function () {
           });
       });
     });
-
     context("Given there are rows in the database", () => {
-      const rowIdName = 1;
-      const testRows = makeRows();
-      beforeEach("insert rows", () => {
-        return db.into(config.table.name).insert(testRows);
-      });
+      const rowId = 1;
+      const testRows = fixtures.makeShiftsWithRelationalColumns();
+      fillAllTables();
       it("responds with 200 and the specified row", () => {
         return supertest(app)
-          .get(`${config.endpoint}/${config.userId}/${rowIdName}`)
-          .expect(200, testRows[rowIdName - 1]);
-      });
-    });
-
-    context("Given an XSS attack row", () => {
-      const rowIdName = 1;
-      const { maliciousRow, expectedRow } = makeMaliciousRow();
-      beforeEach("insert malicious row", () => {
-        return db.into(config.table.name).insert(maliciousRow);
-      });
-      it("removes XSS attack content", () => {
-        return supertest(app)
-          .get(`${config.endpoint}/${config.userId}/${rowIdName}`)
+          .get(`${config.endpoint}/${config.userId}/${rowId}`)
           .expect(200)
-          .expect((res) => {
-            expect(res.body[config.table.xssColumn]).to.eql(
-              expectedRow[config.table.xssColumn]
-            );
-          });
+          .expect(200, testRows[rowId - 1]);
       });
     });
   });
 
   describe(`POST ${config.endpoint}/${config.userId}`, () => {
-    const testRow = makeNewRow();
+    fillReferenceTables();
+    const testRow = fixtures.makeNewRow();
+    const testWithRelationalData = fixtures.makeNewRowWithRelationalData();
     it(`creates a row, responding with 201 and the new row`, () => {
       return supertest(app)
         .post(`${config.endpoint}/${config.userId}`)
@@ -182,46 +157,31 @@ describe(`${config.table.name} endpoints`, function () {
               }`
             )
             .expect((res) => {
-              expect(res.body).to.eql(testRow);
+              expect(res.body).to.eql(testWithRelationalData);
             })
         );
     });
 
     config.table.columns.forEach((field) => {
-      if (config.table.nullColumns.indexOf(field) === -1) {
-        const newRow = makeNewRow();
-        it(`responds with 400 and an error message when the '${field}' is missing`, () => {
-          delete newRow[field];
-          return supertest(app)
-            .post(`${config.endpoint}/${config.userId}`)
-            .send(newRow)
-            .expect(400, {
-              error: { message: `Missing '${field}' in request body` },
-            });
-        });
-      }
-    });
-
-    it("removes XSS attack content from response", () => {
-      const { maliciousRow, expectedRow } = makeMaliciousRow();
-      return supertest(app)
-        .post(`${config.endpoint}/${config.userId}`)
-        .send(maliciousRow)
-        .expect(201)
-        .expect((res) => {
-          expect(res.body[config.xss_column]).to.eql(
-            expectedRow[config.xss_column]
-          );
-        });
+      const newRow = fixtures.makeNewRow();
+      it(`responds with 400 and an error message when the '${field}' is missing`, () => {
+        delete newRow[field];
+        return supertest(app)
+          .post(`${config.endpoint}/${config.userId}`)
+          .send(newRow)
+          .expect(400, {
+            error: { message: `Missing '${field}' in request body` },
+          });
+      });
     });
   });
 
   describe(`DELETE ${config.endpoint}/${config.userId}/1`, () => {
     context(`Given no rows`, () => {
       it(`responds with 404`, () => {
-        const testrowIdName = 1;
+        const testrowId = 1;
         return supertest(app)
-          .delete(`${config.endpoint}/${config.userId}/${testrowIdName}`)
+          .delete(`${config.endpoint}/${config.userId}/${testrowId}`)
           .expect(404, {
             error: {
               message: `Row from table: '${config.table.name}' doesn't exist`,
@@ -229,15 +189,12 @@ describe(`${config.table.name} endpoints`, function () {
           });
       });
     });
-
     context("Given there are rows in table", () => {
-      const testRows = makeRows();
+      const testRows = fixtures.makeShiftsWithRelationalColumns();
       const filteredRowsById = testRows.filter(
         (row) => row.app_user_id === config.userId
       );
-      beforeEach("insert rows", () => {
-        return db.into(config.table.name).insert(testRows);
-      });
+      fillAllTables();
       it("responds with 204 and removes the row", () => {
         const idToRemove = 1;
         return supertest(app)
@@ -246,12 +203,9 @@ describe(`${config.table.name} endpoints`, function () {
           .then((res) =>
             supertest(app)
               .get(`${config.endpoint}/${config.userId}`)
-              .expect(200)
               .expect((res) => {
                 const expectedRows = filteredRowsById.filter(
-                  (row) =>
-                    row[config.rowIdName] !== idToRemove &&
-                    row.percent_of !== idToRemove
+                  (row) => row[config.rowIdName] !== idToRemove
                 );
                 expect(res.body).to.eql(expectedRows);
               })
@@ -275,16 +229,14 @@ describe(`${config.table.name} endpoints`, function () {
     });
 
     context("Given there are rows in the database", () => {
-      const testRows = makeRows();
-      beforeEach("insert rows", () => {
-        return db.into(config.table.name).insert(testRows);
-      });
+      const testRows = fixtures.makeRows();
+      fillAllTables();
 
       it("responds with 204 and updates the row", () => {
         const idToUpdate = 1;
-        const updatedRow = makeUpdatedRow();
+        const updatedRow = fixtures.makeUpdatedRow();
         const expectedRow = {
-          ...testRows[idToUpdate - 1],
+          ...testRows[config.table.name][idToUpdate - 1],
           ...updatedRow,
         };
 
@@ -315,8 +267,10 @@ describe(`${config.table.name} endpoints`, function () {
 
       it(`responds with 204 when updating only a subset of fields`, () => {
         const idToUpdate = 1;
+        const rowsWithRelationalData = fixtures.makeShiftsWithRelationalColumns();
+
         const expectedRow = {
-          ...testRows[idToUpdate - 1],
+          ...rowsWithRelationalData[idToUpdate - 1],
           ...config.table.updatedColumn,
         };
 
@@ -326,6 +280,7 @@ describe(`${config.table.name} endpoints`, function () {
             ...config.table.updatedColumn,
             fieldToIgnore: "should not be in GET response",
           })
+          .expect(204)
           .then((res) =>
             supertest(app)
               .get(`${config.endpoint}/${config.userId}/${idToUpdate}`)

@@ -57,7 +57,6 @@ describe(`${config.table.name} endpoints`, function () {
     });
   };
 
-  //HERE
   after("disconnect from db", () => db.destroy());
   config.allTables.forEach((key) => {
     before("clean the table", () =>
@@ -151,13 +150,14 @@ describe(`${config.table.name} endpoints`, function () {
         return supertest(app)
           .get(`${config.endpoint}/${config.userId}/${rowId}`)
           .expect(200)
-          .expect(200, testRows[config.table.name][rowId - 1]);
+          .expect((res) => {
+            expect(res.body).to.eql(testRows[config.table.name][0]);
+          });
       });
     });
 
     context("Given an XSS attack row", () => {
       const rowId = 1;
-      const testRows = fixtures.makeRows();
       const { maliciousRow, expectedRow } = fixtures.makeMaliciousRow();
       fillReferenceTables();
       beforeEach("insert malicious row", () => {
@@ -201,7 +201,9 @@ describe(`${config.table.name} endpoints`, function () {
                 res.body[config.rowIdName]
               }`
             )
-            .expect(res.body)
+            .expect((res) => {
+              expect(res.body).to.eql(testRow);
+            })
         );
     });
 
@@ -250,20 +252,25 @@ describe(`${config.table.name} endpoints`, function () {
 
     context("Given there are rows in table", () => {
       const testRows = fixtures.makeRows();
+      const filteredRowsById = testRows[config.table.name].filter(
+        (row) => row.app_user_id === config.userId
+      );
       fillAllTables();
       it("responds with 204 and removes the row", () => {
         const idToRemove = 1;
         return supertest(app)
           .delete(`${config.endpoint}/${config.userId}/${idToRemove}`)
           .expect(204)
-          .then((res) => {
-            const expectedRows = testRows[config.table.name].filter(
-              (row) => row[config.table.rowIdName] !== idToRemove
-            );
+          .then((res) =>
             supertest(app)
               .get(`${config.endpoint}/${config.userId}`)
-              .expect(expectedRows);
-          });
+              .expect((res) => {
+                const expectedRows = filteredRowsById.filter(
+                  (row) => row[config.rowIdName] !== idToRemove
+                );
+                expect(res.body).to.eql(expectedRows);
+              })
+          );
       });
     });
   });
@@ -337,7 +344,9 @@ describe(`${config.table.name} endpoints`, function () {
           .then((res) =>
             supertest(app)
               .get(`${config.endpoint}/${config.userId}/${idToUpdate}`)
-              .expect(expectedRow)
+              .expect((res) => {
+                expect(res.body).to.eql(expectedRow);
+              })
           );
       });
     });
