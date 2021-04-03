@@ -1,6 +1,6 @@
 const table = {
   name: "shift",
-  orderRow: "shift_id",
+  orderRow: "role.role_name",
 };
 const service = {
   getAllRowsMatchingUserId(knex, app_user_id) {
@@ -14,7 +14,8 @@ const service = {
         "department.department_id"
       )
       .join("role", "shift.shift_role", "=", "role.role_id")
-      .where(`shift.app_user_id`, app_user_id);
+      .where(`shift.app_user_id`, app_user_id)
+      .orderByRaw(`lower(${table.orderRow}) ASC`);
   },
   getById(knex, app_user_id, row_id) {
     return knex

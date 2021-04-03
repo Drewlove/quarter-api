@@ -21,6 +21,27 @@ const config = {
   rowIdName: "role_id",
 };
 
+const castArrToObjById = (arr, rowId) => {
+  obj = {};
+  arr.forEach((key) => (obj[key[rowId]] = key));
+  return obj;
+};
+
+const filterArrById = (arr) => {
+  return arr.filter((key) => key.app_user_id === config.userId);
+};
+
+const addPropertyToArr = (tableName, tableById, table) => {
+  return table.map((key) => {
+    return {
+      ...key,
+      [`${tableName}_name`]: tableById[key[`${tableName}_id`]][
+        `${tableName}_name`
+      ],
+    };
+  });
+};
+
 describe(`${config.table.name} endpoints`, function () {
   let db;
 
@@ -84,16 +105,25 @@ describe(`${config.table.name} endpoints`, function () {
     `Given there are rows in table(s): ${config.table.name}, ${config.referenceTables} in the database`,
     () => {
       const testRows = fixtures.makeRows();
-      const filteredRowsById = testRows[config.table.name].filter(
-        (row) => row.app_user_id === config.userId
+      const departmentsById = castArrToObjById(
+        testRows.department,
+        "department_id"
       );
+
+      const rolesFilteredById = filterArrById(testRows.role);
+      const rolesWithDepartmentName = addPropertyToArr(
+        "department",
+        departmentsById,
+        rolesFilteredById
+      );
+
       fillAllTables();
       it("responds with 200 and all of the rows matching userId", () => {
         return supertest(app)
           .get(`${config.endpoint}/${config.userId}`)
           .expect(200)
           .expect((res) => {
-            expect(res.body.length).to.eql(filteredRowsById.length);
+            expect(res.body.length).to.eql(rolesWithDepartmentName.length);
           })
           .expect((res) => {
             let sortedRes = res.body.sort((a, b) => {
@@ -101,11 +131,13 @@ describe(`${config.table.name} endpoints`, function () {
                 b[config.table.sortColumn]
               );
             });
-            let sortedfilteredRowsById = filteredRowsById.sort((a, b) => {
-              return a[config.table.sortColumn].localeCompare(
-                b[config.table.sortColumn]
-              );
-            });
+            let sortedfilteredRowsById = rolesWithDepartmentName.sort(
+              (a, b) => {
+                return a[config.table.sortColumn].localeCompare(
+                  b[config.table.sortColumn]
+                );
+              }
+            );
             expect(sortedRes).to.eql(sortedfilteredRowsById);
           });
       });
@@ -252,8 +284,16 @@ describe(`${config.table.name} endpoints`, function () {
 
     context("Given there are rows in table", () => {
       const testRows = fixtures.makeRows();
-      const filteredRowsById = testRows[config.table.name].filter(
-        (row) => row.app_user_id === config.userId
+      const departmentsById = castArrToObjById(
+        testRows.department,
+        "department_id"
+      );
+
+      const rolesFilteredById = filterArrById(testRows.role);
+      const rolesWithDepartmentName = addPropertyToArr(
+        "department",
+        departmentsById,
+        rolesFilteredById
       );
       fillAllTables();
       it("responds with 204 and removes the row", () => {
@@ -265,7 +305,7 @@ describe(`${config.table.name} endpoints`, function () {
             supertest(app)
               .get(`${config.endpoint}/${config.userId}`)
               .expect((res) => {
-                const expectedRows = filteredRowsById.filter(
+                const expectedRows = rolesWithDepartmentName.filter(
                   (row) => row[config.rowIdName] !== idToRemove
                 );
                 expect(res.body).to.eql(expectedRows);
