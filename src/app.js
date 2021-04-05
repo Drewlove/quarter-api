@@ -21,11 +21,6 @@ app.use(
 );
 
 app.use(cors());
-app.use(
-  cors({
-    origin: CLIENT_ORIGIN,
-  })
-);
 app.use(helmet());
 
 // app.use(validateBearerToken);
