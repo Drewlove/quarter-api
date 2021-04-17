@@ -13,8 +13,9 @@ VALUES
     ('603aa00aae08220070737444', 'lead production', 3),
     ('603aa00aae08220070737444', 'expediter', 2),
 
-    ('603d5037c23beb006ada3d0d', 'server', 4),
-    ('603d5037c23beb006ada3d0d', 'chef', 5);
+    ('6078bd8ac282fc006ab892fb', 'service', 4),
+    ('6078bd8ac282fc006ab892fb', 'chef', 5),
+    ('6078bd8ac282fc006ab892fb', 'line cook', 5);
 
 
 
