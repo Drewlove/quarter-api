@@ -12,13 +12,13 @@ To view the app: https://quarter-client.vercel.app/
 
 The Quarter API repo includes:
 
-- Tables, Description of PostgreSQL tables used in the database
-- Authorization, Rules for authorization and authentication
+- Migrations and Tables: Description of PostgreSQL tables used in the database
+- Authorization: Rules for authorization and authentication
 - Service and router logic (including tests)
 
-### Tables
+### Migrations and tables
 
-Tables are created for a PostgreSQL database. Total of 4 tables:
+Tables are created for a PostgreSQL database. Currently, the API repo creates 4 tables:
 
 1. department
 2. role
@@ -33,19 +33,21 @@ Auth0 is a third party authentication and authorization platform (https://auth0.
 
 ### Service and Router Logic
 
-Each table has its own folder. Each folder then has a separate file to handle router, routerFunctions and service logic.
+Each table has its own corresponding folder to handle API request logic. Each folder has three separate files:
 
 - router: Declares how to handle API requests for a given endpoint.
 
-- routerFunctions: Contains the actual logic for the functions used in the Router.
+- routerFunctions: Contains the actual logic for the functions used in the router file.
 
 - service: Using knex, specifies psql commands to manipulate the database and satisfy user requests, such as retrieving rows of information, posting a new row to a table, patching a row, or deleting a row.
 
 ### Technologies
 
-Built using Node.js, Express and Knex. It connects to a PostgreSQL datbase hosted on Heroku.
+Built using Node.js, Express and Knex.
 
-Testing done Mocha and Chai
+Database is created with PostgreSQL and hosted on Heroku.
+
+Testing done with Mocha and Chai.
 
 ### Connecting to Heroku Database
 
